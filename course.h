@@ -16,6 +16,7 @@ class Course
         Course();
         virtual ~Course();
 
+        int compare_name(char * match);
         int insert_data();
         float give_gpa();
         int give_credits();
@@ -25,7 +26,7 @@ class Course
     protected:
         Course * next;
         int credits;
-        float grade;
+        char * grade;
         char * name;
         
 };

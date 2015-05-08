@@ -20,6 +20,9 @@ class Term
         int insert_date(int new_year, int new_term);
         int compare_year(int match);
         int compare_term(int match);
+        int insert_data(int cred, int cs_cred, int term_gpa, int cs_gpa);
+        int give_year();
+        int give_term();
         int give_credits();
         int give_cs_credits();
         float give_term_gpa();
@@ -47,6 +50,8 @@ class Node: public Term
         Node *& go_left();
         Node *& go_right();
         int add_course();
+        int remove_course();
+        Course * retrieve(char * match);
         int course_prompt();
         void insert_gpa();
         void display() const;

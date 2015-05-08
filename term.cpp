@@ -31,10 +31,10 @@ int Term::compare_year(int match)
     if(year == match)
         option = 1;
 
-    else if(year < match)
+    else if(year > match)
         option = 2;
 
-    else if(year > match)
+    else if(year < match)
         option = 3;
 
     return option;
@@ -55,6 +55,35 @@ int Term::compare_term(int match)
         choice = 3;
 
     return choice;
+}
+
+
+
+//
+int Term::insert_data(int cred, int cs_cred, int new_term_gpa, int new_cs_gpa)
+{
+    credits = cred;
+    cs_credits = cs_cred;
+    term_gpa = new_term_gpa;
+    cs_gpa = new_cs_gpa;
+
+    return 1;
+}
+
+
+
+//
+int Term::give_year()
+{
+    return year;
+}
+
+
+
+//
+int Term::give_term()
+{
+    return term;
 }
 
 
@@ -186,6 +215,75 @@ int Node::add_course()
 
 
 //
+int Node::remove_course()
+{
+    Course * current = head;
+    Course * remove = NULL;
+    char temp_name[30];
+
+    while(current)
+    {
+        current->display();
+        current = current->go_next();
+    }
+
+    cout << "\nPlease enter in the name of the course you wish to delete: " << endl;
+    cin.get(temp_name, 30, '\n');
+    cin.ignore(100, '\n');
+
+    char * name = new char[strlen(temp_name)+1];
+    strcpy(name,temp_name);
+
+    remove = retrieve(name);
+
+    delete [] name;
+    name = NULL;
+
+    if(remove == head)
+    {
+        head = remove->go_next();
+        delete remove;
+        remove = NULL;
+    }
+    else
+    {
+        current = head;
+
+        while(current->go_next() != remove)
+            current = current->go_next();
+
+        current->go_next() = remove->go_next();
+        delete remove;
+        remove = NULL;
+    }
+
+    if(!remove)
+        return 1;
+
+    return 0;
+}
+
+
+
+//
+Course * Node::retrieve(char * match)
+{
+    Course * temp = head;
+    int found = 0;
+
+    while(temp && !found)
+    {
+        found = temp->compare_name(match);
+        if(!found)
+            temp = temp->go_next();
+    }
+
+    return temp;
+}
+
+
+
+//
 int Node::course_prompt()
 {
     int number = 0;
@@ -209,24 +307,22 @@ void Node::insert_gpa()
 {
     Course * current = head;
     Cs * test = NULL;
-    int temp_cred = 0;
-    int temp_gpa = 0;
 
     while(current)
     {
-        temp_cred = current->give_credits();
-        temp_gpa = current->give_gpa();
-
-        credits += temp_cred;
-        term_gpa += temp_cred * temp_gpa; //multiplies the grade point by credits
-        
-        test = dynamic_cast<Cs*>(current);//Looks to see if current is a Cs class
-
-        if(test)
+        if(current->give_gpa())
         {
-            //need to check for if gpa is less than 2.0 to signal needing to retake
-            cs_gpa += temp_cred * temp_gpa;
-            cs_credits += temp_cred;
+            term_gpa += current->give_gpa();
+            credits += current->give_credits();
+
+            test = dynamic_cast<Cs*>(current);//Looks to see if current is a Cs class
+
+            if(test)
+            {
+                //need to check for if gpa is less than 2.0 to signal needing to retake
+                cs_gpa += current->give_gpa();
+                cs_credits += current->give_credits();
+            }
         }
 
         current = current->go_next();

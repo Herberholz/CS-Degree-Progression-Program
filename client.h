@@ -15,13 +15,15 @@ class Pine
         ~Pine();
 
         int insert(Node *& root, int new_year, int new_term);
-        int retrieve();
+        int rotation();
+        int remove(Node *& root, int rm_year, int rm_term);
         void display(Node * root) const;
         void remove_all(Node *& root);
 
     protected:
             Node * root;
-
+            int left_height;
+            int right_height;
 };
 
 
