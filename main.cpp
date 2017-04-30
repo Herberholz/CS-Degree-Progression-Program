@@ -1,5 +1,6 @@
 //Cody Herberholz, CS202, Program #2
 //main.cpp
+//This file creates an object of Client and and lets that class run the show
 
 
 

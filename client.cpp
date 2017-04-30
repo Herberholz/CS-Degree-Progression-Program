@@ -1,18 +1,25 @@
 //Cody Herberholz, CS202, Program #2
 //client.cpp
-//Need to keep track of what CS core classes have been passed somehow
+//This file implements the Pine and Client Classes which create the main data 
+//structure and allow the user to interact with the program by providing an 
+//interface. The BST can insert, rotate nodes, remove, and remove all. The manager
+//class interacts with the BST by inserting and removing. It also provides and 
+//interface for the user, displaces the term and classes being taken, and then 
+//shows progress towards the CS degree.
+
 
 
 #include "client.h"
 using namespace std;
 
 
-//
+
+//Constructor for the Pine Class. Initalizes its data members
 Pine::Pine(): root(0),left_height(0),right_height(0) {}
 
 
 
-//
+//Dealocates data by calling upon the remove function
 Pine::~Pine()
 {
     remove_all(root);
@@ -20,28 +27,31 @@ Pine::~Pine()
 
 
 
-//Will check for year first and when both years equal check month
+//Task: Inserts into the BST. If a LLL situation arises then a count is started
+//      to bring about a countdown for a rotation. If the years match then it
+//      checks for the term and inserts node based on term as well as year.
+//Input:  Root is passed in by reference to recursively add to the BST and the
+//        user's year and term are passed in to insert into new node.
+//Output: Returns a 1 if node is added and zero if something went wrong. Also 
+//        increments the left and right height data members within function.
 int Pine:: insert(Node *& root, int new_year, int new_term)
 {
-    int check_year = 0;
-    int check_term = 0;
+    int check_year = 0;//Holds # showing whether new year is greater or less than current year
+    int check_term = 0;//Holds # showing whether new term is greater or less than current term
 
     if(!root) 
     {
         root = new Node;
-        root->insert_date(new_year, new_term);
-        root->add_course();
+        root->insert_date(new_year, new_term);//Inserts date into node
+        root->add_course();//begins addition of a course
         return 1;
 
     }
     
     if(!root->go_left() && root->go_right())
-        ++right_height;
+        ++right_height; //Increments if LLL situation arises on the right side
     if(root->go_left() && !root->go_right())
-        ++left_height;
-
-    if('5' == right_height || '5' == left_height)
-        rotation();
+        ++left_height; //Increments if LLL situation arises on the left side
 
     check_year = root->compare_year(new_year);
     check_term = root->compare_term(new_term);
@@ -50,8 +60,10 @@ int Pine:: insert(Node *& root, int new_year, int new_term)
     {
         if(1 == check_term) //If term is less than 
             return insert(root->go_left(), new_year, new_term);
+
         else if(2 == check_term) //If term is greater than
             return insert(root->go_right(), new_year, new_term);
+
         else if(3 == check_term) //If term is equal
             root->add_course();
     }
@@ -68,13 +80,16 @@ int Pine:: insert(Node *& root, int new_year, int new_term)
 
 
 
-//
-int Pine::rotation()
+//Task:   Rotates the nodes to avoid a LLL situation by make a different node 
+//        the new root. Handles situations for both the left and right side.
+//Input:  None
+//Output: None
+void Pine::rotation()
 {
-    Node * temp = root;
-    Node * prev = NULL;
+    Node * temp = root; //Used to traverse to the node to become new root
+    Node * prev = NULL; //Holds on to parent of new root
 
-    if('5' == right_height)
+    if(5 < right_height)
     {
         for(int i = 0; i < 2; ++i)
         {
@@ -98,9 +113,10 @@ int Pine::rotation()
             prev->go_left() = root;
             root->go_right() = NULL;
         }
-        right_height = 0;
+        right_height = 0; //Resets counter
+        root = temp; //Sets root to new root node
     }
-    if('5' == left_height)
+    if(5 < left_height)
     {
         for(int i = 0; i < 2; ++i)
         {
@@ -123,18 +139,23 @@ int Pine::rotation()
             prev->go_right() = root;
             root->go_left() = NULL;
         }
-        left_height = 0;
+        left_height = 0; //Resets Counter
+        root = temp; //Sets root to new root node
     }
-
-    return 1;
+    return;
 }
 
 
 
-//
+//Task:   Removes a Node from the BST. Choice is given to remove term or course
+//        If a term is removed then it goes through the BST to remove a match 
+//        taking into account all the situations of removing from a BST.
+//Input:  Takes in the root by reference to recursively call upon itself and then 
+//        the year/term that needs to be removed.
+//Output: Returns one with a successful removal and zero when unsuccessful.
 int Pine::remove(Node *& root, int rm_year, int rm_term)
 {
-    char letter;
+    char letter = '\0';
 
     if(!root) return 0;
 
@@ -145,7 +166,7 @@ int Pine::remove(Node *& root, int rm_year, int rm_term)
         cin.ignore(100,'\n');
 
         if('C' == toupper(letter))
-            root->remove_course();
+            root->remove_course(); //Removes course
         else
         {
             if(!root->go_left() && !root->go_right())
@@ -231,20 +252,23 @@ int Pine::remove(Node *& root, int rm_year, int rm_term)
 
 
 
-//
+//Task:   Displays the whole tree
+//Input:  Root to recursively call upon itself
+//Output: Displays each node
 void Pine::display(Node * root) const
 {
     if(!root) return;
 
-    root->display();
     display(root->go_left());
-//    root->display();
+    root->display();
     display(root->go_right());
 }
 
 
 
-//
+//Task:   Removes all nodes
+//Input:  Root is passed by reference
+//Ouptus: None
 void Pine::remove_all(Node *& root)
 {
     if(!root) return;
@@ -256,12 +280,16 @@ void Pine::remove_all(Node *& root)
 }
 
 
-//
+//Client Constructor that initializes its data members
 Client::Client():total_gpa(0),total_cs_gpa(0),total_cs_credits(0),total_credits(0) {}
 
 
 
-//
+//Task:  Provides interface for user. Lets them add a course, remove course/term
+//       display they courses inserted, and display the current overall and cs
+//       gpa.
+//Input:  None
+//Output: Returns the users choice of what to do 
 int Client::prompt()
 {
     int choice = 0;
@@ -285,20 +313,25 @@ int Client::prompt()
 
 
 
-//
+//Task: This acts as the manager of the whole program. Provides an interface for
+//      the user to use.
+//Input: None
+//Output: Returns 1 upon completion of program
 int Client::operation()
 {
-    int option = 0;
-    int term_year = 0;
+    int option = 0; //Holds choice of what the user wants to do 
+    int term_year = 0; //Holds temporary term year to be passed to insert
     int term = 0; //Fall,Winter,Spring,Summer
-    int rm_year = 0;
-    int rm_term = 0;
+    int rm_year = 0; //Holds year of term to be removed
+    int rm_term = 0; //Holds term to be removed
 
     cout << "\n\nWelcome to my program! The purpose of this program is to help"
             "evaluate your progress in the CS Program." << endl;
 
     do
     {
+        if(5 < right_height || 5 < left_height)//if balance is off then rotate
+            rotation();
         option = prompt();
 
         switch(option)
@@ -331,12 +364,14 @@ int Client::operation()
     }
     while(option != 5);
 
-    return 0;
+    return 1;
 }
 
 
 
-//Chose term
+//Task:   Allows user to choose the term and year
+//Input:  Term and year by reference to set
+//Output: Term and year changed via reference
 void Client::select_term(int & term_year, int & term)
 {
     cout << "\nWhat year was your course taken(EX: 2015)? " << endl;
@@ -355,12 +390,13 @@ void Client::select_term(int & term_year, int & term)
         cin.ignore(100, '\n');
     }
     while(term > 4 || term <= 0);
-
 }
 
 
 
-//
+//Task:  Receives term gpa and credits and adds them to the overall amount. 
+//Input:  Root is received to be able to be a recursive function
+//Output: Zero is returned when Null is reached.
 int Client::receive_gpa(Node * root)
 {
     if(!root) return 0;
@@ -376,11 +412,13 @@ int Client::receive_gpa(Node * root)
 
 
 
-//
+//Task:   Calculates the overall and CS GPA by dividing the total GPA by credits
+//Input:  None
+//Output: One upon completion of function
 int Client::calc_gpa()
 {
-    float overall_gpa = 0;
-    float overall_cs_gpa = 0;
+    float overall_gpa = 0; //holds results of GPA / credits
+    float overall_cs_gpa = 0; //holds results of CS GPA / CS credits
 
     overall_gpa = total_gpa / total_credits;
     overall_cs_gpa = total_cs_gpa / total_cs_credits;
@@ -399,13 +437,17 @@ int Client::calc_gpa()
 
 
 
-//
+//Task:   Checks for total amount of credits and shows if user is able to apply
+//        to program.
+//Input:  None
+//Output: Returns one upon completion
 int Client::evaluate_progress()
 {
     if(total_credits < 90)
         cout << "\nYou have " << total_credits << " which does not meet the reqirements"
              << " to be accepted into the CS Program" << endl;
-    
+    else
+        cout << "\nCongradulations! You made it!" << endl;
 
     return 1;
 }
